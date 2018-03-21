@@ -15,16 +15,16 @@ mod tests {
     use board::position::BoardPosition;
     use board::validate::validate;
 
+    #[test]
+    pub fn run_tests() {
+        for case in test_cases.iter() { run_test(&case); }
+    }
+
     fn run_test(test_case:&ValidateTestCase) {
         let &ValidateTestCase {ref dims, living, expected_result, desc} = test_case;
         let b = Board { dims:dims.clone(), living:living.clone() };
         let actual_result = validate(&b);
         assert_eq!(actual_result, expected_result, "Test Failed: {}", desc);
-    }
-
-    #[test]
-    pub fn run_tests() {
-        for case in test_cases.iter() { run_test(&case) }
     }
 
     struct ValidateTestCase<'a> {
