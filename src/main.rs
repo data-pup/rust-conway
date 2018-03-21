@@ -1,5 +1,5 @@
-mod board_state;
-use board_state::hello;
+mod board;
+use board::hello;
 
 fn main() {
     hello();
