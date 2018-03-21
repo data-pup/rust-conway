@@ -5,8 +5,7 @@ mod board_state {
     }
 
     pub struct BoardState {
-        pub height: u32,
-        pub width:  u32,
-        pub living: Vec<u32>,
+        pub dims:   Position,
+        pub living: Vec<Position>,
     }
 }
