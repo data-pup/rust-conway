@@ -1,8 +1,9 @@
 pub mod position;
+pub mod validate;
 
-pub struct Board {
+pub struct Board<'a> {
     pub dims:   position::BoardPosition,
-    pub living: Vec<position::BoardPosition>,
+    pub living: &'a [position::BoardPosition],
 }
 
 pub fn hello() {
