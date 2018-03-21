@@ -7,6 +7,7 @@ pub struct BoardPosition {
 }
 
 impl BoardPosition {
+    /// Creates a new position object using the given x and y values.
     pub fn new(x:u32, y:u32) -> BoardPosition {
         return BoardPosition { x:x, y:y };
     }
