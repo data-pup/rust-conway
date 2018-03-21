@@ -4,7 +4,7 @@ use board::validate::validate;
 
 /// Creates a string representation of the current board state. If the board
 /// is not in a valid state, then this function will panic.
-impl<'a> ToString for Board {
+impl ToString for Board {
     fn to_string(&self) -> String {
         // Check that the board is valid first.
         if !validate(&self) { panic!("Could not create string for invalid Board!"); }

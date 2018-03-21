@@ -3,11 +3,16 @@ use board::position::BoardPosition;
 use rand;
 use rand::Rng;
 
-impl<'a> Board {
+impl Board {
     pub fn new(width: u32, height:u32) -> Board {
         let dims = BoardPosition::new(width, height);
         let living = Board::init_living(&dims);
         return Board { dims:dims, living:living };
+    }
+
+    pub fn update(&mut self) {
+        let living = Board::init_living(&self.dims);
+        self.living = living;
     }
 
     fn init_living(dims:&BoardPosition) -> Vec<BoardPosition> {
