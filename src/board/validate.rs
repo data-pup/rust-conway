@@ -15,13 +15,6 @@ mod tests {
     use board::position::BoardPosition;
     use board::validate::validate;
 
-    struct ValidateTestCase<'a> {
-        dims:            BoardPosition,
-        living:          &'a [BoardPosition],
-        expected_result: bool,
-        desc:            &'a str,
-    }
-
     fn run_test(test_case:&ValidateTestCase) {
         let &ValidateTestCase {ref dims, living, expected_result, desc} = test_case;
         let b = Board { dims:dims.clone(), living:living.clone() };
@@ -32,6 +25,13 @@ mod tests {
     #[test]
     pub fn run_tests() {
         for case in test_cases.iter() { run_test(&case) }
+    }
+
+    struct ValidateTestCase<'a> {
+        dims:            BoardPosition,
+        living:          &'a [BoardPosition],
+        expected_result: bool,
+        desc:            &'a str,
     }
 
     static test_cases:[ValidateTestCase; 4] = [
