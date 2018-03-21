@@ -17,11 +17,21 @@ To do ...
 
 ## Difficulties Encountered & Lessons Learned
 
+### Ownership, Borrowing
+
+To do ...
+
 ### Testing
 
-To do ...
+One thing that is especially helpful is Rust's testing system. You can unit
+test the functions in a module, including private functions, by placing a
+test module at the bottom of a function with the `#[cfg(test)]`, attribute.
 
-### 'Sized' trait in static objects
+Integration tests found in the `tests/` directory of the crate will only be
+able to access publicly exposed functions and structs, so these provide two
+different ways to check that code is functioning correctly.
 
-To do ...
+### Documenting Strings
 
+Documentation comments can be placed above a function with comments marked
+with `///`. A neat fact about these comments is that they do support Markdown!
