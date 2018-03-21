@@ -1,6 +1,7 @@
 pub mod position;
 pub mod validate;
 pub mod board_to_string;
+pub mod board_new;
 
 use board::position::BoardPosition;
 

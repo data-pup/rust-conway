@@ -16,7 +16,9 @@ impl<'a> ToString for Board<'a> {
 
         // Change the character stored at each of the living squares.
         for &BoardPosition {x:curr_x, y:curr_y} in self.living {
-            chars[curr_y as usize][curr_x as usize] = 'X';
+            let x_index = curr_x as usize;
+            let y_index = (height - curr_y - 1) as usize;
+            chars[y_index][x_index] = 'X';
         }
 
         return chars.iter()         // Fold each row vector into a string,
@@ -32,10 +34,13 @@ mod tests {
     use board::position::BoardPosition;
 
     #[test]
+    /// This function will run each of the test cases, and print the test's
+    /// description if a test fails.
     pub fn run_tests() {
         for case in TEST_CASES.iter() { run_test(&case); }
     }
 
+    /// Private helper function used to test a single test case.
     fn run_test(test_case:&ToStringTestCase) {
         let &ToStringTestCase { ref dims, living, expected_string, desc } = test_case;
         let b = Board { dims:dims.clone(), living:living.clone() };
@@ -43,6 +48,8 @@ mod tests {
         assert_eq!(actual_string, expected_string, "Test Failed: {}", desc);
     }
 
+    // Test case type containing board dimensions, living squares positions,
+    // expected string representation, and a test description field.
     struct ToStringTestCase<'a> {
         dims:            BoardPosition,
         living:          &'a [BoardPosition],
@@ -51,12 +58,23 @@ mod tests {
     }
 
     // Test cases for the board.
-    static TEST_CASES:[ToStringTestCase; 1] = [
+    static TEST_CASES:[ToStringTestCase; 2] = [
         ToStringTestCase {
             dims: BoardPosition { x:3, y:3 },
             living: &[BoardPosition { x:0, y:0}],
-            expected_string: "   \n   \nX  ",
+            expected_string: "   \n   \nX  \n",
             desc: "3x3 Board with single living square at origin.",
+        },
+        ToStringTestCase {
+            dims: BoardPosition { x:3, y:3 },
+            living: &[
+                BoardPosition { x:0, y:0},
+                BoardPosition { x:0, y:2},
+                BoardPosition { x:2, y:0},
+                BoardPosition { x:2, y:2},
+            ],
+            expected_string: "X X\n   \nX X\n",
+            desc: "3x3 Board with living squares at each corner.",
         },
     ];
 }
