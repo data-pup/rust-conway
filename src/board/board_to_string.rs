@@ -4,7 +4,7 @@ use board::validate::validate;
 
 /// Creates a string representation of the current board state. If the board
 /// is not in a valid state, then this function will panic.
-impl<'a> ToString for Board<'a> {
+impl<'a> ToString for Board {
     fn to_string(&self) -> String {
         // Check that the board is valid first.
         if !validate(&self) { panic!("Could not create string for invalid Board!"); }
@@ -15,7 +15,7 @@ impl<'a> ToString for Board<'a> {
         let mut chars = vec![vec![' '; x_usize]; y_usize];
 
         // Change the character stored at each of the living squares.
-        for &BoardPosition {x:curr_x, y:curr_y} in self.living {
+        for &BoardPosition {x:curr_x, y:curr_y} in &self.living {
             let x_index = curr_x as usize;
             let y_index = (height - curr_y - 1) as usize;
             chars[y_index][x_index] = 'X';

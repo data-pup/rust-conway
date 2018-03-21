@@ -2,8 +2,8 @@ use board::Board;
 use board::position::BoardPosition;
 
 pub fn validate(b:&Board) -> bool {
-    let BoardPosition  { x:width,  y:height } = b.dims;
-    for &BoardPosition { x:curr_x, y:curr_y } in b.living {
+    let BoardPosition { x:width,  y:height } = b.dims;
+    for &BoardPosition { x:curr_x, y:curr_y } in &b.living {
         if curr_x >= width || curr_y >= height { return false; }
     }
     return true;

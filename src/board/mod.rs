@@ -5,11 +5,7 @@ pub mod board_new;
 
 use board::position::BoardPosition;
 
-pub struct Board<'a> {
+pub struct Board {
     pub dims:   BoardPosition,
-    pub living: &'a [BoardPosition],
-}
-
-pub fn hello() {
-    println!("Hello, world!");
+    pub living: Vec<BoardPosition>,
 }
