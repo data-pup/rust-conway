@@ -1,7 +1,7 @@
 use board::Board;
 use board::position::BoardPosition;
 
-fn validate(b:&Board) -> bool {
+pub fn validate(b:&Board) -> bool {
     let BoardPosition  { x:width,  y:height } = b.dims;
     for &BoardPosition { x:curr_x, y:curr_y } in b.living {
         if curr_x >= width || curr_y >= height { return false; }
@@ -17,7 +17,7 @@ mod tests {
 
     #[test]
     pub fn run_tests() {
-        for case in test_cases.iter() { run_test(&case); }
+        for case in TEST_CASES.iter() { run_test(&case); }
     }
 
     fn run_test(test_case:&ValidateTestCase) {
@@ -34,7 +34,7 @@ mod tests {
         desc:            &'a str,
     }
 
-    static test_cases:[ValidateTestCase; 4] = [
+    static TEST_CASES:[ValidateTestCase; 4] = [
         ValidateTestCase {
             dims:   BoardPosition { x:10, y:10 },
             living: &[BoardPosition { x:0, y:0 }],

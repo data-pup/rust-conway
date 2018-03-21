@@ -1,8 +1,14 @@
 use board::Board;
 use board::position::BoardPosition;
+use board::validate::validate;
 
+/// Creates a string representation of the current board state. If the board
+/// is not in a valid state, then this function will panic.
 impl<'a> ToString for Board<'a> {
     fn to_string(&self) -> String {
+        // Check that the board is valid first.
+        if !validate(&self) { panic!("Could not create string for invalid Board!"); }
+
         // Create a 2-dimensional array of characters.
         let BoardPosition {x:width, y:height} = self.dims;
         let (x_usize, y_usize) = (width as usize, height as usize);
@@ -27,7 +33,7 @@ mod tests {
 
     #[test]
     pub fn run_tests() {
-        for case in test_cases.iter() { run_test(&case); }
+        for case in TEST_CASES.iter() { run_test(&case); }
     }
 
     fn run_test(test_case:&ToStringTestCase) {
@@ -44,7 +50,8 @@ mod tests {
         desc:            &'a str,
     }
 
-    static test_cases:[ToStringTestCase; 1] = [
+    // Test cases for the board.
+    static TEST_CASES:[ToStringTestCase; 1] = [
         ToStringTestCase {
             dims: BoardPosition { x:3, y:3 },
             living: &[BoardPosition { x:0, y:0}],
