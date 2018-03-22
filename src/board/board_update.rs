@@ -10,45 +10,62 @@ struct UpdateCell {
 impl Board {
     /// Updates the board.
     pub fn update(&mut self) {
-        if !validate(&self) { // If the board isn't valid, re-initialize.
-            let living = Board::init_living(&self.dims);
-            self.living = living;
-            return;
-        }
-        let cell_lives = |update_info:&UpdateCell| {
-            match update_info.was_alive {
+        let new_living: Vec<BoardPosition> =
+            if validate(&self) {  // If the board is valid, calculate new state.
+                let update_cells = self.get_update_cells();
+                Board::get_new_living(update_cells)
+            } else {              // If the board isn't valid, re-initialize.
+                Board::init_living(&self.dims)
+            };
+        self.living = new_living; // Assign the new state to the board.
+    }
+
+    /// This function will use the update information for each position and
+    /// return a vector containing the positions of the cells that should be
+    /// alive in the next tick.
+    fn get_new_living(update_cells: Vec<Vec<UpdateCell>>) -> Vec<BoardPosition> {
+        let mut new_living:Vec<BoardPosition> = vec![]; // Allocate return vector.
+        let cell_lives = |update_info:UpdateCell| {     // This closure checks if
+            match update_info.was_alive {               // a cell should be alive.
                 true => 2 <= update_info.neighbors && update_info.neighbors <= 3,
                 false => update_info.neighbors == 3,
             }
         };
-        let update_cells = self.get_update_cells();
-        let mut new_living:Vec<BoardPosition> = vec![];
-        let BoardPosition {x:width, y:height} = self.dims;
-        for x in 0..width { for y in 0..height {
-                if cell_lives(&update_cells[y as usize][x as usize]) {
-                    new_living.push(BoardPosition {x, y});
-                }
-            }
+        let mut y_u:usize = 0;
+        for curr_row in update_cells {     // Iterate through all of the positions.
+            let mut x_u:usize = 0;
+            for curr_elem in curr_row {    // If the position should be alive in the
+                if cell_lives(curr_elem) { // new state, add to the results vector.
+                    new_living.push(BoardPosition {x:x_u as u32, y:y_u as u32});
+                } x_u += 1; // Increment the x position after processing an element.
+            } y_u += 1;     // Increment the x position after processing a row.
         }
-        self.living = new_living;
+        return new_living;
     }
 
+    /// This function will use the current board state to create a matrix of
+    /// objects containing information for identifying the new state of each cell.
     fn get_update_cells(&self) -> Vec<Vec<UpdateCell>> {
         let form_update_row = |row:&Vec<u32>| -> Vec<UpdateCell> {
             row.iter()
-                .map(|&n_count| UpdateCell {
-                    was_alive:false,
-                    neighbors:n_count})
+                .map(|&n_count| UpdateCell {was_alive:false, neighbors:n_count})
                 .collect()
         };
         let mut update_cells: Vec<Vec<UpdateCell>> =
             self.get_neighbor_counts().iter()
             .map(|row| form_update_row(row))
             .collect();
-        for &BoardPosition{x, y} in &self.living {
+        Board::set_was_alive_flags(&mut update_cells, &self.living);
+        return update_cells
+    }
+
+    /// This will iterate through the vector of previously living positions,
+    /// and the `was_alive` flag accordingly in the cell update matrix.
+    fn set_was_alive_flags(update_cells: &mut Vec<Vec<UpdateCell>>,
+                           prev_living:  &Vec<BoardPosition>) {
+        for &BoardPosition{x, y} in prev_living {
             update_cells[y as usize][x as usize].was_alive = true;
         }
-        update_cells
     }
 
     /// Creates a matrix of unsigned integers representing the number of
@@ -81,16 +98,10 @@ impl Board {
 
         Board::NEIGHBOR_COORDS.iter()                                 // Iterate through neighbors.
             .map   (|&(x_delta, y_delta)| (x + x_delta, y + y_delta)) // Find neighbor coords.
-            .filter(|&pos| in_bounds(pos, dims_i))                    // Check is in bounds.
+            .filter(|&pos| in_bounds(pos, dims_i))                    // Check pos is in bounds.
             .map   (|pos|  pos_from_tuple(pos))                       // Form a BoardPosition.
             .collect()                                                // Collect into a vector.
     }
-
-    /// This const contains relative steps to find each neighbor for a given position.
-    const NEIGHBOR_COORDS:[(i32, i32); 8] = [
-        (0, 1), (0, -1), (1, 0), (-1, 0),   // Up, down, right, left.
-        (1, 1), (1, -1), (-1, 1), (-1, -1), // Diagonal coordinates.
-    ];
 
     /// Allocates a matrix of u32 values that will be used to calculate the
     /// number of neighbors that each position on the board has.
@@ -100,4 +111,10 @@ impl Board {
         let new_living = vec![ vec![0; width_usize]; height_usize as usize ];
         return new_living;
     }
+
+    /// This const contains relative steps to find each neighbor for a given position.
+    const NEIGHBOR_COORDS:[(i32, i32); 8] = [
+        (0, 1), (0, -1), (1, 0), (-1, 0),   // Up, down, right, left.
+        (1, 1), (1, -1), (-1, 1), (-1, -1), // Diagonal coordinates.
+    ];
 }

@@ -27,9 +27,17 @@ following transitions occur:
 
 ## Difficulties Encountered & Lessons Learned
 
+### Closures and Higher-Order Functions
+
+For statements involving a chain of HOF's, it can be helpful to use closures
+rather than declaring the logic inline. This means that fewer methods are
+included in our `impl` blocks, as well as making our pipelines more readable.
+
 ### Ownership, Borrowing
 
-To do ...
+This project required gaining a better understanding of how Rust's ownership
+and borrowing systems work. While it can be difficult initially to work with,
+it also prevents subtle memory bugs from being introduced to the project.
 
 ### Testing
 
