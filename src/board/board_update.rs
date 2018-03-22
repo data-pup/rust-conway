@@ -10,23 +10,36 @@ impl Board {
             self.living = living;
         }
 
-        // Destructure the board dimensions and borrow the vector of live squares.
-        let orig_living = &self.living;
-        let new_living = Board::get_neighbor_count_matrix(&self.dims);
-        for pos in orig_living {
-        }
+        let neigh_counts: Vec<Vec<u32>> = self.living.iter()
+        .flat_map(|pos| Board::get_neighbors(pos, &self.dims))
+        .fold(Board::get_neighbor_count_matrix(&self.dims),
+            |mut counts, BoardPosition{x, y}| {
+                let (x_u, y_u) = (x as usize, y as usize);
+                counts[y_u][x_u] += 1;
+                counts
+            });
+
     }
 
-    const NEIGHBOR_COORDINATES:[(i32, i32); 8] = [
-        (0, 1), (0, -1), (1, 0), (-1, 0), // Up, down, right, left.
-        (1, 1), (1, -1), (-1, 1), (-1, -1),
+    /// This const contains relative steps to find each neighbor for a given position.
+    const NEIGHBOR_COORDS:[(i32, i32); 8] = [
+        (0, 1), (0, -1), (1, 0), (-1, 0),   // Up, down, right, left.
+        (1, 1), (1, -1), (-1, 1), (-1, -1), // Diagonal coordinates.
     ];
 
+    /// Map the position relative neighbor coordinate collections, filter out
+    /// dimensions that are out of bounds, and collect the results into a
+    /// vector of board position objects.
     fn get_neighbors(pos:&BoardPosition, dims:&BoardPosition) -> Vec<BoardPosition> {
-        let mut neighbors = vec![];
-
-        // Do Stuff.
-
+        let (x, y) = (*&pos.x as i32, *&pos.y as i32);
+        let (width, height) = (*&dims.x as i32, *&dims.y as i32);
+        let neighbors = Board::NEIGHBOR_COORDS.iter()
+            .map(|&(x_delta, y_delta)| (x as i32 + x_delta, y as i32 + y_delta))
+            .filter(
+                |&(neigh_x, neigh_y)| neigh_x >= 0 && neigh_x < width  as i32
+                                   && neigh_y >= 0 && neigh_y < height as i32)
+            .map(|(new_x, new_y)| BoardPosition { x:new_x as u32, y:new_y as u32 })
+            .collect();
         return neighbors;
     }
 
