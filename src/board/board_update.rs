@@ -2,15 +2,53 @@ use board::Board;
 use board::position::BoardPosition;
 use board::validate::validate;
 
+struct UpdateCell {
+    was_alive: bool,
+    neighbors: u32,
+}
+
 impl Board {
     /// Updates the board.
     pub fn update(&mut self) {
         if !validate(&self) { // If the board isn't valid, re-initialize.
             let living = Board::init_living(&self.dims);
             self.living = living;
+            return;
         }
+        let cell_lives = |update_info:&UpdateCell| {
+            match update_info.was_alive {
+                true => 2 <= update_info.neighbors && update_info.neighbors <= 3,
+                false => update_info.neighbors == 3,
+            }
+        };
+        let update_cells = self.get_update_cells();
+        let mut new_living:Vec<BoardPosition> = vec![];
+        let BoardPosition {x:width, y:height} = self.dims;
+        for x in 0..width { for y in 0..height {
+                if cell_lives(&update_cells[y as usize][x as usize]) {
+                    new_living.push(BoardPosition {x, y});
+                }
+            }
+        }
+        self.living = new_living;
+    }
 
-        let neigh_counts = self.get_neighbor_counts();
+    fn get_update_cells(&self) -> Vec<Vec<UpdateCell>> {
+        let form_update_row = |row:&Vec<u32>| -> Vec<UpdateCell> {
+            row.iter()
+                .map(|&n_count| UpdateCell {
+                    was_alive:false,
+                    neighbors:n_count})
+                .collect()
+        };
+        let mut update_cells: Vec<Vec<UpdateCell>> =
+            self.get_neighbor_counts().iter()
+            .map(|row| form_update_row(row))
+            .collect();
+        for &BoardPosition{x, y} in &self.living {
+            update_cells[y as usize][x as usize].was_alive = true;
+        }
+        update_cells
     }
 
     /// Creates a matrix of unsigned integers representing the number of
@@ -31,16 +69,21 @@ impl Board {
     /// dimensions that are out of bounds, and collect the results into a
     /// vector of board position objects.
     fn get_pos_neighbors(pos:&BoardPosition, dims:&BoardPosition) -> Vec<BoardPosition> {
+        // Destructure the position and dimensions into signed integers.
         let (x, y) = (*&pos.x as i32, *&pos.y as i32);
-        let (width, height) = (*&dims.x as i32, *&dims.y as i32);
-        let neighbors = Board::NEIGHBOR_COORDS.iter()
-            .map(|&(x_delta, y_delta)| (x as i32 + x_delta, y as i32 + y_delta))
-            .filter(
-                |&(neigh_x, neigh_y)| neigh_x >= 0 && neigh_x < width  as i32
-                                   && neigh_y >= 0 && neigh_y < height as i32)
-            .map(|(new_x, new_y)| BoardPosition { x:new_x as u32, y:new_y as u32 })
-            .collect();
-        return neighbors;
+        let dims_i = (*&dims.x as i32, *&dims.y as i32);
+
+        // Closures used for bounds checking positions and creating a BoardPosition.
+        let in_bounds = |(x,y):(i32, i32), (width, height):(i32, i32)| -> bool {
+            return x >= 0 && x < width && y >= 0 && y < height
+        };
+        let pos_from_tuple = |(x_i, y_i):(i32, i32)| BoardPosition { x:x_i as u32, y:y_i as u32 };
+
+        Board::NEIGHBOR_COORDS.iter()                                 // Iterate through neighbors.
+            .map   (|&(x_delta, y_delta)| (x + x_delta, y + y_delta)) // Find neighbor coords.
+            .filter(|&pos| in_bounds(pos, dims_i))                    // Check is in bounds.
+            .map   (|pos|  pos_from_tuple(pos))                       // Form a BoardPosition.
+            .collect()                                                // Collect into a vector.
     }
 
     /// This const contains relative steps to find each neighbor for a given position.
