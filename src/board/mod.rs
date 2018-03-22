@@ -1,8 +1,6 @@
 pub mod position;
 pub mod validate;
 pub mod board_to_string;
-// pub mod board_new;
-// pub mod update;
 
 use rand;
 use rand::Rng;
@@ -15,17 +13,22 @@ pub struct Board {
 }
 
 impl Board {
+    /// Create a new Conway's Game of Life board of a given height and width.
     pub fn new(width: u32, height:u32) -> Board {
         let dims = BoardPosition::new(width, height);
         let living = Board::init_living(&dims);
         return Board { dims:dims, living:living };
     }
 
+    /// Updates the board.
     pub fn update(&mut self) {
         let living = Board::init_living(&self.dims);
         self.living = living;
     }
 
+    /// Initializes the board, randomly generating which squares should begin
+    /// in a living state. Returns a vector containing the positions of each
+    /// living square on the board.
     fn init_living(dims:&BoardPosition) -> Vec<BoardPosition> {
         let &BoardPosition {x:width, y:height} = dims;
         let mut living = vec![];
