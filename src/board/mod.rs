@@ -1,6 +1,7 @@
 pub mod position;
 pub mod validate;
 pub mod board_to_string;
+pub mod board_update;
 
 use rand;
 use rand::Rng;
@@ -18,12 +19,6 @@ impl Board {
         let dims = BoardPosition::new(width, height);
         let living = Board::init_living(&dims);
         return Board { dims:dims, living:living };
-    }
-
-    /// Updates the board.
-    pub fn update(&mut self) {
-        let living = Board::init_living(&self.dims);
-        self.living = living;
     }
 
     /// Initializes the board, randomly generating which squares should begin
