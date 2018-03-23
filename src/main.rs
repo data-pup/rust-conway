@@ -26,9 +26,9 @@ fn clear_screen() {
 
 /// Print the board and the iteration number.
 fn print_board(b:&Board, c:u64) {
-    print!("{0}\nIteration: {1}",
+    print!("Iteration: {0}\n\n{1}",
+        c.to_string(),
         &b.to_string(),
-        c.to_string()
     );
 }
 
