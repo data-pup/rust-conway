@@ -6,17 +6,33 @@ use std::time::Duration;
 use std::thread::sleep;
 
 fn main() { // Begin by initializing the board.
+    let delay: u64 = 100;
+    let mut counter: u64 = 0;
     let (width, height) = (80, 30);
-    let mut b = Board::new(width, height);
+    let mut board = Board::new(width, height);
     loop { // Loop indefinitely. Clear screen, print, wait, and update.
         clear_screen();
-        print_board(&b);
-        wait_n_secs(1);
-        b.update();
+        print_board(&board, counter);
+        wait_n_ms(delay);
+        board.update();
+        counter += 1;
     }
 }
 
-// Helper functions.
-fn clear_screen()        { print!("{}[2J", 27 as char);  }
-fn print_board(b:&Board) { print!("{}", &b.to_string()); }
-fn wait_n_secs(n:u64)    { sleep(Duration::new(n, 0));   }
+/// Clear the screen.
+fn clear_screen() {
+    print!("{}[2J", 27 as char);
+}
+
+/// Print the board and the iteration number.
+fn print_board(b:&Board, c:u64) {
+    print!("{0}\nIteration: {1}",
+        &b.to_string(),
+        c.to_string()
+    );
+}
+
+/// Wait a given number of milliseconds.
+fn wait_n_ms(n:u64) {
+    sleep(Duration::from_millis(n));
+}
